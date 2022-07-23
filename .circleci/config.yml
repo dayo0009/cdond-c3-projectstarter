@@ -70,12 +70,13 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-deps]
+          keys: [frontend-deps]
       - run:
           name: Analyze frontend
           command: |
             cd frontend
             npm install
+            npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
 
   scan-backend:
@@ -90,6 +91,8 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix --force --audit-level=critical
+            npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
 
           
