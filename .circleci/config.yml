@@ -14,13 +14,13 @@ commands:
           when: on_fail
           command: |
             # Empty frontend bucket
-            aws s3 rm s3://udapeople-<< parameters.Workflow_ID >> --recursive
+            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
 
             # Delete frontend stack
-            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.Workflow_ID>>
 
             # Delete backend stack
-            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.Workflow_ID>>
   
   install_awscli:
     description: Install AWS CLI v2
@@ -148,7 +148,7 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/backend.yml \
             --tags project=udapeople \
-            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}" \
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"
       - run:
           name: Add backend ip to ansible inventory
@@ -162,7 +162,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - cdond-c3-projectstarter/.circleci/ansible/inventory.txt        
+            - project/.circleci/ansible/inventory.txt        
       - destroy-environment
 
 workflows:
