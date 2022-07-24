@@ -131,8 +131,8 @@ jobs:
     docker:
       - image: cimg/python:3.10
     steps:
-      -	checkout
-      -	install_awscli
+      - checkout
+      - install_awscli
       - run:
           name: Ensure frontend infrastructure exist
           command: |
