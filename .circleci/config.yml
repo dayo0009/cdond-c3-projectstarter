@@ -143,10 +143,10 @@ jobs:
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"
 
       - run:
-          name: Ensure front-end infrastructure exist
+          name: Ensure backend infrastructure exist
           command: |
             aws cloudformation deploy \
-            --template-file .circleci/files/frontend.yml \
+            --template-file .circleci/files/backend.yml \
             --tags project=udapeople \
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"
@@ -163,6 +163,7 @@ jobs:
           root: ~/
           paths:
             - cdond-c3-projectstarter/.circleci/ansible/inventory.txt        
+      - destroy-environment
 
 workflows:
   udapeople:
