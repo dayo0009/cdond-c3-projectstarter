@@ -16,10 +16,10 @@
         timeout: 600
 
     - name: "install python for Ansible."
+      become: true
       apt:
         name: python3
-        update_cache: yes
-        cache_valid_time: 432000
+        update_cahe: yes
 
   # Get the environment variables from CircleCI and add to the stack created EC2 instance
   environment:
