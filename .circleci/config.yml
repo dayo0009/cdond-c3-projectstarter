@@ -335,13 +335,14 @@ jobs:
   smoke-test:
     docker:
       - image: cimg/python:3.10
+      - image: alpine:latest
     steps:
       - checkout
       - install_awscli
       - install_nodejs
       - install_curl
       - run:
-          name: Get backend url and run smoke test.
+          name: Get backend url and run the backend smoke test.
           command: |
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:5}" \
