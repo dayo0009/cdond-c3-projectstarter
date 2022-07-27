@@ -356,11 +356,11 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
             echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
-            
+            cat frontend/.env
             # Test if url exists
-            if curl --head "${API_URL}/api/status" | grep "ok"
+            if curl "${API_URL}/api/status" | grep "ok"
             then
-              cat frontend/.env
+              echo "Success"
               exit 0
             else
               echo "failed to load public id"
