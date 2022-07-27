@@ -328,7 +328,7 @@ jobs:
             export TYPEORM_MIGRATIONS=./migrations/*.ts
  
             cd .circleci/ansible
-            echo "Reading contents  of the inventory.txt file is -------"
+            echo "Reading contents  of the inventory.txt file -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
  
@@ -356,13 +356,14 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
             export "API_URL=http://${BACKEND_PUBLIC_IP}:3030"
-            echo "${API_URL}"
             # Test if url exists
             if curl -s --head "${API_URL}/api/status" | grep "ok"
             then
-              return 0
+              echo "${API_URL}"
+              exit 0
             else
-              return 1
+              echo "failed to load public id"
+              exit 1
             fi 
       - run:
           name: Frontend smoke test.
@@ -372,9 +373,9 @@ jobs:
               if curl -s --head "${URL}" | grep "Welcome"
               then
                 # Change this to 0 after the job fails
-                return 1
+                exit 1
               else
-                return 1
+                exit 1
               fi
         
       # add some code to rollback on failure
