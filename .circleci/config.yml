@@ -31,6 +31,14 @@ commands:
              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
              unzip awscliv2.zip
              sudo ./aws/install
+             
+  install_curl:
+    description: Install curl with sudo
+    steps:
+      - run:
+          name: Curl installation
+          command: |
+             sudo apt install curl
   
   install_ansible:
     description: Install Ansible
@@ -73,15 +81,7 @@ commands:
               cd ~/project/backend
               npm install
               npm run migration:revert
-            fi
-            
-  install_curl:
-    description: Install curl for smoke test
-    steps:
-      - run:
-          name: Curl installation
-          command: |
-             apk add --update curl          
+            fi        
 
 jobs:
   build-frontend:
@@ -272,7 +272,7 @@ jobs:
       - restore_cache:
           keys: [backend-deps]
       - run:
-          name: Install dependencies
+          name: Install frontend dependencies
           command: |
             cd frontend
             npm install
@@ -308,7 +308,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install backend dependencies
           command: |
             cd backend
             npm install
@@ -341,6 +341,13 @@ jobs:
       - install_awscli
       - install_nodejs
       - install_curl
+      - restore_cache:
+          keys: [backend-deps]
+      - run:
+          name: Install backend smoke dependencies
+          command: |
+            cd backend
+            npm install     
       - run:
           name: Get backend url and run the backend smoke test.
           command: |
