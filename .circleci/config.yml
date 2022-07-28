@@ -418,7 +418,7 @@ jobs:
           name: Update cloudfront distribution
           command: |
             export OldWorkflowID=$(aws cloudformation \
-            list-exports --query "Exports[?Name==\'WorkflowID\'].Value" \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --nopaginate --output text)
 
             echo $OldWorkflowID >> ~/OldWorkflowID.text
@@ -432,6 +432,11 @@ jobs:
             
             echo OldWorkflowID: $"{OldWorkflowID}"
             echo Current Workflow ID: $"{CIRCLE_WORKFLOW_ID:0:5}"
+            
+            # Fetch the stack names          
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+            --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}" 
       
       # add some code to rollback on failure
       - destroy-environment
