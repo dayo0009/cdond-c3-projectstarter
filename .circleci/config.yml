@@ -419,7 +419,7 @@ jobs:
           command: |
             export OldWorkflowID=$(aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-            --nopaginate --output text)
+            --no-paginate --output text)
 
             echo $OldWorkflowID >> ~/OldWorkflowID.text
             cate OldWorkflowID.txt
