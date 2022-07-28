@@ -358,8 +358,8 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
             API_URL=http://${BACKEND_PUBLIC_IP}:3030
-            echo "${API_URL}\n"
-            echo curl "${API_URL}/api/status"
+            echo "${API_URL}"
+            curl "${API_URL}/api/status"
       # add some code to rollback on failure
       - destroy-environment
       - revert-migrations
