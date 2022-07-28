@@ -40,6 +40,14 @@ commands:
           command: |
              sudo apt install curl
   
+  install_grep:
+    description: Install grep with sudo
+    steps:
+      - run:
+          name: grep installation
+          command: |
+             sudo apt install -y grep
+  
   install_ansible:
     description: Install Ansible
     steps:
@@ -340,6 +348,7 @@ jobs:
       - install_awscli
       - install_nodejs
       - install_curl
+      - install_grep
       - restore_cache:
           keys: [backend-deps]
       - run:
@@ -359,7 +368,26 @@ jobs:
             --output text)
             API_URL=http://${BACKEND_PUBLIC_IP}:3030
             echo "${API_URL}"
-            curl "${API_URL}/api/status"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              echo "Success"
+              exit 0
+            else
+              echo "failed to load public id"
+              exit 1
+            fi 
+      - run:
+          name: Frontend smoke test.
+          command: |
+              URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+              echo ${URL} 
+              if curl "${URL}" | grep "Welcome"
+              then
+                # Change this to 0 after the job fails
+                exit 1
+              else
+                exit 1
+              fi
       # add some code to rollback on failure
       - destroy-environment
       - revert-migrations
