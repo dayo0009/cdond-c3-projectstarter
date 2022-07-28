@@ -400,6 +400,42 @@ jobs:
       # add some code to rollback on failure
       - destroy-environment
       - revert-migrations
+      
+  # update the maually configure cloudfront
+  update-cloudfront:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansibl
+      - install_nodejs
+      - restore_cache:
+          keys: [backend-deps]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            export OldWorkflowID=$(aws cloudformation \
+            list-exports --query "Exports[?Name==\'WorkflowID\'].Value" \
+            --nopaginate --output text)
+
+            echo $OldWorkflowID >> ~/OldWorkflowID.text
+            cate OldWorkflowID.txt
+
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name udapeople-cloudfront \
+            --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:5}" \
+            --tags project=udapeople
+            
+            echo OldWorkflowID: $"{OldWorkflowID}"
+            echo Current Workflow ID: $"{CIRCLE_WORKFLOW_ID:0:5}"
+      
+      # add some code to rollback on failure
+      - destroy-environment
+      - revert-migrations
  
 workflows:
   udapeople:
@@ -428,5 +464,7 @@ workflows:
       - deploy-backend:
           requires: [run-migrations]
       - smoke-test:
+          requires: [deploy-frontend, deploy-backend]
+      - update-cloudfront:
           requires: [deploy-frontend, deploy-backend]
           
