@@ -223,6 +223,9 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      # add some code to rollback on failure
+      - destroy-environment
+      - revert-migrations
             
   configure-infrastructure:
     docker:  
@@ -244,6 +247,10 @@ jobs:
             cat inventory.txt
 
             ansible-playbook -i inventory.txt configure-server.yml
+            
+      # add some code to rollback on failure
+      - destroy-environment
+      - revert-migrations
       
   run-migrations:
     docker:    
@@ -269,8 +276,11 @@ jobs:
               curl https://kvdb.io/${MY_KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:5}  -d '1'
             else
               echo "No migrations are pending" 
-            fi     
- 
+            fi    
+      # add some code to rollback on failure
+      - destroy-environment
+      - revert-migrations      
+
   deploy-frontend:
     docker:
       - image: cimg/python:3.10
@@ -300,7 +310,9 @@ jobs:
             cd frontend
             npm run build
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
- 
+      # add some code to rollback on failure
+      - destroy-environment
+      - revert-migrations
   
   deploy-backend:
     docker:
@@ -340,6 +352,10 @@ jobs:
             echo "Reading contents  of the inventory.txt file -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
+      
+      # add some code to rollback on failure
+      - destroy-environment
+      - revert-migrations
  
   smoke-test:
     docker:
@@ -351,18 +367,10 @@ jobs:
       - install_curl
       - install_grep
       - restore_cache:
-          keys: [backend-deps]
-      - run:
-          name: Install backend smoke dependencies
-          command: |
-            cd backend
-            npm install     
+          keys: [backend-deps]    
       - run:
           name: Get backend url and run the backend smoke test.
-          command: |
-            cd backend
-            npm run build
-            
+          command: |           
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:5}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
