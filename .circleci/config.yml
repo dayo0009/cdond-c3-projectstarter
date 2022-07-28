@@ -335,7 +335,6 @@ jobs:
   smoke-test:
     docker:
       - image: cimg/python:3.10
-      - image: alpine:latest
     steps:
       - checkout
       - install_awscli
@@ -351,14 +350,17 @@ jobs:
       - run:
           name: Get backend url and run the backend smoke test.
           command: |
+            cd backend
+            npm run build
+            
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:5}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
-            echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
-            cat frontend/.env
+            API_URL=http://${BACKEND_PUBLIC_IP}:3030
+            echo "${API_URL}"
             # Test if url exists
-            if curl "${API_URL}/api/status" | grep "ok"
+            if curl -Is "${API_URL}/api/status\r" | grep "ok"
             then
               echo "Success"
               exit 0
