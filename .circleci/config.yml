@@ -234,7 +234,6 @@ jobs:
       - checkout
       - install_awscli
       - install_ansible
-      
       - add_ssh_keys:
             fingerprints: ["db:00:63:8a:ed:75:93:54:fa:f4:5a:b7:86:ef:68:8c"]
       # attach workspace
@@ -245,7 +244,6 @@ jobs:
           command: |
             cd .circleci/ansible
             cat inventory.txt
-
             ansible-playbook -i inventory.txt configure-server.yml
             
       # add some code to rollback on failure
