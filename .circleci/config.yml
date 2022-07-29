@@ -471,7 +471,7 @@ jobs:
             fi
 
             
-            echo OldStackWorkflowID: $"{OldStackWorkflowID}"
+            echo OldStackWorkflowID: "${OldStackWorkflowID}"
             echo Current Stack Workflow ID: "${CIRCLE_WORKFLOW_ID:0:5}"
  
  
