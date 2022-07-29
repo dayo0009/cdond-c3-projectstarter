@@ -435,7 +435,47 @@ jobs:
       # add some code to rollback on failure
       - destroy-environment
       - revert-migrations
-        
+  
+  cleanup:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - install_awscli
+      - install_nodejs
+      - restore_cache:
+          keys: [backend-deps]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Get old stack workflow id
+          command: |      
+            # export OldStackWorkflowID="the id here"
+            export OldStackWorkflowID=$(aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text)
+            
+            echo $OldStackWorkflowID >> ~/oldstack.txt
+            cat ~/oldstack.txt
+            OldStackWorkflowID=$(cat ~/oldstack.txt)
+            echo OldStackWorkflowID: "${OldStackWorkflowID}"
+      - run:
+          name: Remove old stacks and files usign if not condition
+          command: |
+            if [[ "${CIRCLE_WORKFLOW_ID:0:5}" =~ "${OldStackWorkflowID}" ]]
+            then
+               echo "--------------- Delete Confirmed ------------------"
+               aws s3 rm "s3://udapeople-${OldStackWorkflowID}" --recursive
+               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldStackWorkflowID}"
+               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldStackWorkflowID}"
+            else
+               echo "------------------ Error Cleaning Up Old stack ----------------------"
+            fi
+
+            
+            echo OldStackWorkflowID: $"{OldStackWorkflowID}"
+            echo Current Stack Workflow ID: "${CIRCLE_WORKFLOW_ID:0:5}"
+ 
  
 workflows:
   udapeople:
@@ -467,4 +507,5 @@ workflows:
           requires: [deploy-frontend, deploy-backend]
       - update-cloudfront:
           requires: [smoke-test]
-          
+      - cleanup:
+          requires: [update-cloudfront]
