@@ -431,7 +431,7 @@ jobs:
             --tags project=udapeople
             
             echo OldWorkflowID: "${OldWorkflowID}"
-            echo Current Workflow ID: $"{CIRCLE_WORKFLOW_ID:0:5}"
+            echo Current Workflow ID: "${CIRCLE_WORKFLOW_ID:0:5}"
             
             # Fetch the stack names          
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
@@ -441,6 +441,8 @@ jobs:
       # add some code to rollback on failure
       - destroy-environment
       - revert-migrations
+      
+  
  
 workflows:
   udapeople:
