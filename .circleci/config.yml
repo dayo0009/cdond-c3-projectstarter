@@ -444,6 +444,11 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: Install frontend dependencies
+          command: |
+            cd frontend
+            npm install
+      - run:
           name: Get old stack workflow id
           command: |      
             # export OldWorkflowID="the id here"
@@ -454,14 +459,8 @@ jobs:
             echo $OldWorkflowID >> ~/oldstack.txt
             cat ~/oldstack.txt
             OldWorkflowID=$(cat ~/oldstack.txt)
-            echo OldWorkflowID: "${OldWorkflowID}"
+            echo "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:5}"
-            echo $OldWorkflowID
-            
-            # Fetch the stack names          
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-            --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-            echo Stack names: "${STACKS[@]}" 
 
             if [[ "${CIRCLE_WORKFLOW_ID:0:5}" != "${OldWorkflowID}" ]]
             then
@@ -473,6 +472,9 @@ jobs:
                echo "------------------ Error Cleaning Up Old stack ----------------------"
             fi
             echo Current Stack Workflow ID: "${CIRCLE_WORKFLOW_ID:0:5}"
+            # add some code to rollback on failure
+      - destroy-environment
+      - revert-migrations 
  
  
 workflows:
