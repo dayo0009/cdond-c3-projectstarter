@@ -440,9 +440,8 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      # - install_ansible
       - install_nodejs
-      - restore_cache:
-          keys: [backend-deps]
       - attach_workspace:
           at: ~/
       - run:
@@ -457,10 +456,10 @@ jobs:
             cat ~/oldstack.txt
             OldStackWorkflowID=$(cat ~/oldstack.txt)
             echo OldStackWorkflowID: "${OldStackWorkflowID}"
-      - run:
-          name: Remove old stacks and files usign if not condition
-          command: |
-            if [[ "${CIRCLE_WORKFLOW_ID:0:5}" =~ "${OldStackWorkflowID}" ]]
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:5}"
+            echo $OldStackWorkflowID
+            
+            if [[ "${CIRCLE_WORKFLOW_ID:0:5}" != "${OldStackWorkflowID}" ]]
             then
                echo "--------------- Delete Confirmed ------------------"
                aws s3 rm "s3://udapeople-${OldStackWorkflowID}" --recursive
@@ -469,9 +468,6 @@ jobs:
             else
                echo "------------------ Error Cleaning Up Old stack ----------------------"
             fi
-
-            
-            echo OldStackWorkflowID: "${OldStackWorkflowID}"
             echo Current Stack Workflow ID: "${CIRCLE_WORKFLOW_ID:0:5}"
  
  
